@@ -80,7 +80,6 @@ ng generate service nombreServicio
 ng generate module nombreModulo
 ```
 
-
 ### Crear una nueva ruta
 
 ```bash
@@ -113,7 +112,7 @@ Friends4You/
 │   │   ├── app.component.ts        # Lógica del componente principal
 │   │   ├── app.config.ts           # Configuraciones generales de la app
 │   │   ├── app.routes.ts           # Configuración de rutas
-│   ├── NombreComponente            # Esta sería la estructura general de los otros componentes que iré añadiendo a medida que vaya avanzando
+│   ├── NombreComponente            # Estructura general de los otros componentes que iré añadiendo
 │   │   ├── nombreComponente.component.html  # Plantilla del componente "NombreComponente"
 │   │   ├── nombreComponente.component.css   # Estilos específicos del componente "NombreComponente"
 │   │   ├── nombreComponente.component.ts    # Lógica específica del componente "NombreComponente"
@@ -132,7 +131,7 @@ Friends4You/
 
 ## Contribuciones
 
-Este proyecto forma parte de mi proceso de aprendizaje. Si tienes sugerencias, mejoras o quieres colaborar, ¡estaré encantado de recibir tus aportaciones! Puedes enviar un pull request o abrir un issue en el repositorio.
+Este proyecto forma parte de mi proceso de aprendizaje y es de carácter privado, por lo que su uso, modificación o distribución requieren el permiso expreso de Samu_Tech. Sin embargo, si tienes sugerencias, mejoras o has identificado algún error, ¡estaré encantado de recibir tus aportaciones! Puedes enviar un pull request o abrir un issue en el repositorio; todas las contribuciones serán evaluadas cuidadosamente para ver si pueden integrarse al proyecto, siempre bajo los términos de la licencia propietaria.
 
 ## Licencia
 
