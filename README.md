@@ -135,7 +135,7 @@ Este proyecto forma parte de mi proceso de aprendizaje y es de carácter privado
 
 ## Licencia
 
-Este proyecto es de código abierto y puede ser modificado y distribuido, siempre y cuando se reconozca la autoría original.
+Este proyecto es de **código propietario**. Se permite su uso, modificación y distribución solo con el permiso expreso de Samu_Tech. Cualquier distribución del código también requerirá autorización previa.
 
 ## Contacto
 
