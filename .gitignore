@@ -1,0 +1,11 @@
+/vendor/
+/node_modules/
+/.idea/
+/.vscode/
+*.log
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db
+.chrome-headless*/
+.env
