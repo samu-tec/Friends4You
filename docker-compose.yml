@@ -1,0 +1,57 @@
+services:
+  # Contenedor 1: PHP + Apache (sirve la web)
+  web:
+    build: .
+    container_name: friends4you-web
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
+    environment:
+      F4Y_BASE_URL: ${F4Y_BASE_URL}
+      F4Y_DB_HOST: db
+      F4Y_DB_NAME: ${MYSQL_DATABASE}
+      F4Y_DB_USER: ${F4Y_DB_USER}
+      F4Y_DB_PASSWORD: ${F4Y_DB_PASSWORD}
+      F4Y_DB_CHARSET: utf8mb4
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - friends4you-net
+
+  # Contenedor 2: MySQL (base de datos)
+  db:
+    image: mysql:8
+    container_name: friends4you-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - friends4you-net
+
+  # Contenedor 3: Cloudflare Tunnel (acceso desde internet)
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: friends4you-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - web
+    networks:
+      - friends4you-net
+
+volumes:
+  db_data:
+
+networks:
+  friends4you-net:
+    driver: bridge
