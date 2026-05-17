@@ -58,33 +58,33 @@ ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
 
 INSERT IGNORE INTO preferencia (id_usuario, id_interes)
 SELECT u.id_usuario, i.id_interes
-FROM usuario u
-INNER JOIN interes i ON i.nombre IN ('Cine', 'Cafes y charlas', 'Musica')
-WHERE u.correo = 'lucia@friends4you.com';
+FROM usuario u, interes i
+WHERE i.nombre IN ('Cine', 'Cafes y charlas', 'Musica')
+  AND u.correo = 'lucia@friends4you.com';
 
 INSERT IGNORE INTO preferencia (id_usuario, id_interes)
 SELECT u.id_usuario, i.id_interes
-FROM usuario u
-INNER JOIN interes i ON i.nombre IN ('Padel', 'Videojuegos')
-WHERE u.correo = 'carlos@friends4you.com';
+FROM usuario u, interes i
+WHERE i.nombre IN ('Padel', 'Videojuegos')
+  AND u.correo = 'carlos@friends4you.com';
 
 INSERT IGNORE INTO preferencia (id_usuario, id_interes)
 SELECT u.id_usuario, i.id_interes
-FROM usuario u
-INNER JOIN interes i ON i.nombre IN ('Senderismo', 'Cine')
-WHERE u.correo = 'marta@friends4you.com';
+FROM usuario u, interes i
+WHERE i.nombre IN ('Senderismo', 'Cine')
+  AND u.correo = 'marta@friends4you.com';
 
 INSERT IGNORE INTO preferencia (id_usuario, id_interes)
 SELECT u.id_usuario, i.id_interes
-FROM usuario u
-INNER JOIN interes i ON i.nombre = 'Padel'
-WHERE u.correo = 'padelclub@friends4you.com';
+FROM usuario u, interes i
+WHERE i.nombre = 'Padel'
+  AND u.correo = 'padelclub@friends4you.com';
 
 INSERT IGNORE INTO preferencia (id_usuario, id_interes)
 SELECT u.id_usuario, i.id_interes
-FROM usuario u
-INNER JOIN interes i ON i.nombre = 'Cafes y charlas'
-WHERE u.correo = 'cafeteriaplaza@friends4you.com';
+FROM usuario u, interes i
+WHERE i.nombre = 'Cafes y charlas'
+  AND u.correo = 'cafeteriaplaza@friends4you.com';
 
 INSERT INTO colaborador (nombre, direccion, ciudad, descripcion, id_usuario_colaborador)
 SELECT 'Padel Club Centro', 'Avenida del Deporte 12', 'Malaga',
@@ -119,10 +119,10 @@ SELECT u.id_usuario,
        i.id_interes,
        c.id_colaborador,
        'activo'
-FROM usuario u
-INNER JOIN interes i ON i.nombre = 'Padel'
-INNER JOIN colaborador c ON c.nombre = 'Padel Club Centro'
-WHERE u.correo = 'padelclub@friends4you.com'
+FROM usuario u, interes i, colaborador c
+WHERE i.nombre = 'Padel'
+  AND c.nombre = 'Padel Club Centro'
+  AND u.correo = 'padelclub@friends4you.com'
   AND NOT EXISTS (
       SELECT 1 FROM evento
       WHERE nombre = 'Partido de padel para principiantes'
@@ -138,9 +138,9 @@ SELECT u.id_usuario,
        i.id_interes,
        NULL,
        'activo'
-FROM usuario u
-INNER JOIN interes i ON i.nombre = 'Senderismo'
-WHERE u.correo = 'marta@friends4you.com'
+FROM usuario u, interes i
+WHERE i.nombre = 'Senderismo'
+  AND u.correo = 'marta@friends4you.com'
   AND NOT EXISTS (
       SELECT 1 FROM evento
       WHERE nombre = 'Ruta de senderismo del domingo'
@@ -156,10 +156,10 @@ SELECT u.id_usuario,
        i.id_interes,
        c.id_colaborador,
        'activo'
-FROM usuario u
-INNER JOIN interes i ON i.nombre = 'Cafes y charlas'
-INNER JOIN colaborador c ON c.nombre = 'Cafeteria Plaza'
-WHERE u.correo = 'cafeteriaplaza@friends4you.com'
+FROM usuario u, interes i, colaborador c
+WHERE i.nombre = 'Cafes y charlas'
+  AND c.nombre = 'Cafeteria Plaza'
+  AND u.correo = 'cafeteriaplaza@friends4you.com'
   AND NOT EXISTS (
       SELECT 1 FROM evento
       WHERE nombre = 'Cafe y charla entre usuarios'
@@ -168,24 +168,24 @@ WHERE u.correo = 'cafeteriaplaza@friends4you.com'
 
 INSERT IGNORE INTO amistad (usuario_origen, usuario_destino, estado)
 SELECT origen.id_usuario, destino.id_usuario, 'aceptada'
-FROM usuario origen
-INNER JOIN usuario destino ON destino.correo = 'carlos@friends4you.com'
-WHERE origen.correo = 'lucia@friends4you.com';
+FROM usuario origen, usuario destino
+WHERE destino.correo = 'carlos@friends4you.com'
+  AND origen.correo = 'lucia@friends4you.com';
 
 INSERT IGNORE INTO amistad (usuario_origen, usuario_destino, estado)
 SELECT origen.id_usuario, destino.id_usuario, 'pendiente'
-FROM usuario origen
-INNER JOIN usuario destino ON destino.correo = 'lucia@friends4you.com'
-WHERE origen.correo = 'marta@friends4you.com';
+FROM usuario origen, usuario destino
+WHERE destino.correo = 'lucia@friends4you.com'
+  AND origen.correo = 'marta@friends4you.com';
 
 INSERT IGNORE INTO asistencia (id_usuario, id_evento, estado_asistencia)
 SELECT u.id_usuario, e.id_evento, 'confirmada'
-FROM usuario u
-INNER JOIN evento e ON e.nombre = 'Partido de padel para principiantes'
-WHERE u.correo IN ('lucia@friends4you.com', 'carlos@friends4you.com');
+FROM usuario u, evento e
+WHERE e.nombre = 'Partido de padel para principiantes'
+  AND u.correo IN ('lucia@friends4you.com', 'carlos@friends4you.com');
 
 INSERT IGNORE INTO asistencia (id_usuario, id_evento, estado_asistencia)
 SELECT u.id_usuario, e.id_evento, 'confirmada'
-FROM usuario u
-INNER JOIN evento e ON e.nombre = 'Cafe y charla entre usuarios'
-WHERE u.correo IN ('lucia@friends4you.com', 'marta@friends4you.com');
+FROM usuario u, evento e
+WHERE e.nombre = 'Cafe y charla entre usuarios'
+  AND u.correo IN ('lucia@friends4you.com', 'marta@friends4you.com');

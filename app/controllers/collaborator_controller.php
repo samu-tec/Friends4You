@@ -104,9 +104,9 @@ function fetch_collaborator_events($pdo, $colaboradorId)
 {
     $stmt = $pdo->prepare(
         'SELECT e.*, i.nombre AS interes
-         FROM evento e
-         INNER JOIN interes i ON i.id_interes = e.id_interes
-         WHERE e.id_colaborador = ?
+         FROM evento e, interes i
+         WHERE i.id_interes = e.id_interes
+           AND e.id_colaborador = ?
          ORDER BY e.fecha_hora DESC'
     );
     $stmt->execute([$colaboradorId]);

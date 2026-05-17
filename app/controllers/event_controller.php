@@ -247,7 +247,9 @@ function validate_event_form($datos)
 function fetch_events($pdo, $interestId = 0)
 {
     $params = ['activo'];
-    $condicion = 'WHERE e.estado_evento = ?';
+    $condicion = 'WHERE i.id_interes = e.id_interes
+                    AND u.id_usuario = e.id_creador
+                    AND e.estado_evento = ?';
 
     if ($interestId > 0) {
         $condicion .= ' AND e.id_interes = ?';
@@ -256,13 +258,11 @@ function fetch_events($pdo, $interestId = 0)
 
     $stmt = $pdo->prepare(
         'SELECT e.*, i.nombre AS interes, u.nombre AS creador_nombre, u.apellidos AS creador_apellidos,
-                c.nombre AS colaborador_nombre,
+                (SELECT c.nombre FROM colaborador c
+                 WHERE c.id_colaborador = e.id_colaborador) AS colaborador_nombre,
                 (SELECT COUNT(*) FROM asistencia a
                  WHERE a.id_evento = e.id_evento AND a.estado_asistencia = "confirmada") AS asistentes
-         FROM evento e
-         INNER JOIN interes i ON i.id_interes = e.id_interes
-         INNER JOIN usuario u ON u.id_usuario = e.id_creador
-         LEFT JOIN colaborador c ON c.id_colaborador = e.id_colaborador
+         FROM evento e, interes i, usuario u
          ' . $condicion . '
          ORDER BY e.fecha_hora ASC'
     );
@@ -275,12 +275,14 @@ function fetch_event_detail($pdo, $eventoId)
 {
     $stmt = $pdo->prepare(
         'SELECT e.*, i.nombre AS interes, u.nombre AS creador_nombre, u.apellidos AS creador_apellidos,
-                c.nombre AS colaborador_nombre, c.direccion AS colaborador_direccion
-         FROM evento e
-         INNER JOIN interes i ON i.id_interes = e.id_interes
-         INNER JOIN usuario u ON u.id_usuario = e.id_creador
-         LEFT JOIN colaborador c ON c.id_colaborador = e.id_colaborador
-         WHERE e.id_evento = ?'
+                (SELECT c.nombre FROM colaborador c
+                 WHERE c.id_colaborador = e.id_colaborador) AS colaborador_nombre,
+                (SELECT c.direccion FROM colaborador c
+                 WHERE c.id_colaborador = e.id_colaborador) AS colaborador_direccion
+         FROM evento e, interes i, usuario u
+         WHERE i.id_interes = e.id_interes
+           AND u.id_usuario = e.id_creador
+           AND e.id_evento = ?'
     );
     $stmt->execute([$eventoId]);
     $evento = $stmt->fetch();
@@ -292,9 +294,9 @@ function fetch_event_attendees($pdo, $eventoId)
 {
     $stmt = $pdo->prepare(
         'SELECT u.nombre, u.apellidos, a.estado_asistencia
-         FROM asistencia a
-         INNER JOIN usuario u ON u.id_usuario = a.id_usuario
-         WHERE a.id_evento = ?
+         FROM asistencia a, usuario u
+         WHERE u.id_usuario = a.id_usuario
+           AND a.id_evento = ?
          ORDER BY a.estado_asistencia, u.nombre'
     );
     $stmt->execute([$eventoId]);

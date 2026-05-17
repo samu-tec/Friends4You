@@ -4,15 +4,22 @@ Las pruebas se han organizado en tres bloques: pruebas de unidad, prueba de cone
 
 ## Ejecucion desde consola
 
-En este equipo PHP no esta anadido al PATH, por lo que se ejecutan con el binario de XAMPP:
+Desde la carpeta del proyecto, con PHP en el PATH:
 
-```powershell
-C:\xampp\php\php.exe tests\test_validaciones.php
-C:\xampp\php\php.exe tests\test_conexion_bd.php
-C:\xampp\php\php.exe tests\test_integracion_basica.php
+```text
+php tests/test_validaciones.php
+php tests/test_conexion_bd.php
+php tests/test_integracion_basica.php
 ```
 
-Tambien pueden abrirse desde navegador si Apache esta iniciado:
+Si PHP no esta en el PATH (caso habitual en XAMPP en Windows), se usa la ruta
+completa del binario, por ejemplo:
+
+```text
+C:\xampp\php\php.exe tests\test_validaciones.php
+```
+
+Tambien pueden abrirse desde el navegador si Apache esta iniciado:
 
 ```text
 http://localhost/Friends4You/tests/test_validaciones.php
@@ -46,7 +53,7 @@ Script: `tests/test_conexion_bd.php`
 
 | Prueba | Entrada | Resultado esperado | Resultado obtenido | Estado |
 | --- | --- | --- | --- | --- |
-| Conexion a base de datos | Credenciales de `app/config/database.php` | Conexion correcta o error claro | OK, conexion correcta a `friends4you` | Superada |
+| Conexion a base de datos | Credenciales de `app/config.php` | Conexion correcta o error claro | OK, conexion correcta a `friends4you` | Superada |
 
 ## Pruebas de integracion basica
 

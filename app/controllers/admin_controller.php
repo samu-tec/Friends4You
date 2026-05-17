@@ -201,8 +201,8 @@ function fetch_admin_users($pdo)
 {
     $stmt = $pdo->query(
         'SELECT u.*, r.nombre AS rol
-         FROM usuario u
-         INNER JOIN rol r ON r.id_rol = u.id_rol
+         FROM usuario u, rol r
+         WHERE r.id_rol = u.id_rol
          ORDER BY u.id_usuario'
     );
     return $stmt->fetchAll();
@@ -213,8 +213,8 @@ function fetch_admin_collaborators($pdo)
 {
     $stmt = $pdo->query(
         'SELECT c.*, u.correo
-         FROM colaborador c
-         INNER JOIN usuario u ON u.id_usuario = c.id_usuario_colaborador
+         FROM colaborador c, usuario u
+         WHERE u.id_usuario = c.id_usuario_colaborador
          ORDER BY c.nombre'
     );
     return $stmt->fetchAll();
@@ -225,10 +225,11 @@ function fetch_users_without_collaborator($pdo)
 {
     $stmt = $pdo->query(
         'SELECT u.id_usuario, u.nombre, u.apellidos, u.correo
-         FROM usuario u
-         INNER JOIN rol r ON r.id_rol = u.id_rol
-         LEFT JOIN colaborador c ON c.id_usuario_colaborador = u.id_usuario
-         WHERE r.nombre = "colaborador" AND c.id_colaborador IS NULL
+         FROM usuario u, rol r
+         WHERE r.id_rol = u.id_rol
+           AND r.nombre = "colaborador"
+           AND NOT EXISTS (SELECT 1 FROM colaborador c
+                           WHERE c.id_usuario_colaborador = u.id_usuario)
          ORDER BY u.nombre'
     );
     return $stmt->fetchAll();
@@ -238,11 +239,12 @@ function fetch_users_without_collaborator($pdo)
 function fetch_admin_events($pdo)
 {
     $stmt = $pdo->query(
-        'SELECT e.*, i.nombre AS interes, u.correo AS creador_correo, c.nombre AS colaborador_nombre
-         FROM evento e
-         INNER JOIN interes i ON i.id_interes = e.id_interes
-         INNER JOIN usuario u ON u.id_usuario = e.id_creador
-         LEFT JOIN colaborador c ON c.id_colaborador = e.id_colaborador
+        'SELECT e.*, i.nombre AS interes, u.correo AS creador_correo,
+                (SELECT c.nombre FROM colaborador c
+                 WHERE c.id_colaborador = e.id_colaborador) AS colaborador_nombre
+         FROM evento e, interes i, usuario u
+         WHERE i.id_interes = e.id_interes
+           AND u.id_usuario = e.id_creador
          ORDER BY e.fecha_hora DESC'
     );
     return $stmt->fetchAll();
@@ -252,10 +254,10 @@ function fetch_admin_events($pdo)
 function fetch_events_by_interest($pdo)
 {
     $stmt = $pdo->query(
-        'SELECT i.nombre, COUNT(e.id_evento) AS total
+        'SELECT i.nombre,
+                (SELECT COUNT(*) FROM evento e
+                 WHERE e.id_interes = i.id_interes) AS total
          FROM interes i
-         LEFT JOIN evento e ON e.id_interes = i.id_interes
-         GROUP BY i.id_interes, i.nombre
          ORDER BY total DESC, i.nombre'
     );
     return $stmt->fetchAll();
@@ -265,10 +267,10 @@ function fetch_events_by_interest($pdo)
 function fetch_users_by_role($pdo)
 {
     $stmt = $pdo->query(
-        'SELECT r.nombre, COUNT(u.id_usuario) AS total
+        'SELECT r.nombre,
+                (SELECT COUNT(*) FROM usuario u
+                 WHERE u.id_rol = r.id_rol) AS total
          FROM rol r
-         LEFT JOIN usuario u ON u.id_rol = r.id_rol
-         GROUP BY r.id_rol, r.nombre
          ORDER BY r.id_rol'
     );
     return $stmt->fetchAll();

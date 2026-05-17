@@ -57,9 +57,9 @@ function handle_login()
     $pdo = get_db();
     $stmt = $pdo->prepare(
         'SELECT u.*, r.nombre AS rol
-         FROM usuario u
-         INNER JOIN rol r ON r.id_rol = u.id_rol
-         WHERE u.correo = ?
+         FROM usuario u, rol r
+         WHERE r.id_rol = u.id_rol
+           AND u.correo = ?
          LIMIT 1'
     );
     $stmt->execute([$correo]);
@@ -135,9 +135,9 @@ function handle_register()
     $nuevoId = (int) $pdo->lastInsertId();
     $stmt = $pdo->prepare(
         'SELECT u.*, r.nombre AS rol
-         FROM usuario u
-         INNER JOIN rol r ON r.id_rol = u.id_rol
-         WHERE u.id_usuario = ?'
+         FROM usuario u, rol r
+         WHERE r.id_rol = u.id_rol
+           AND u.id_usuario = ?'
     );
     $stmt->execute([$nuevoId]);
     $usuario = $stmt->fetch();

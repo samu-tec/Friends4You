@@ -269,9 +269,9 @@ function fetch_user_profile($pdo, $userId)
 {
     $stmt = $pdo->prepare(
         'SELECT u.*, r.nombre AS rol
-         FROM usuario u
-         INNER JOIN rol r ON r.id_rol = u.id_rol
-         WHERE u.id_usuario = ?'
+         FROM usuario u, rol r
+         WHERE r.id_rol = u.id_rol
+           AND u.id_usuario = ?'
     );
     $stmt->execute([$userId]);
     $usuario = $stmt->fetch();
@@ -317,12 +317,12 @@ function search_users($pdo, $userId, $ciudad, $interestId)
     }
 
     $sql = 'SELECT u.id_usuario, u.nombre, u.apellidos, u.ciudad,
-                   GROUP_CONCAT(DISTINCT i.nombre ORDER BY i.nombre SEPARATOR ", ") AS intereses
+                   (SELECT GROUP_CONCAT(i.nombre ORDER BY i.nombre SEPARATOR ", ")
+                    FROM preferencia p, interes i
+                    WHERE p.id_interes = i.id_interes
+                      AND p.id_usuario = u.id_usuario) AS intereses
             FROM usuario u
-            LEFT JOIN preferencia p ON p.id_usuario = u.id_usuario
-            LEFT JOIN interes i ON i.id_interes = p.id_interes
             WHERE ' . implode(' AND ', $condiciones) . '
-            GROUP BY u.id_usuario, u.nombre, u.apellidos, u.ciudad
             ORDER BY u.ciudad, u.nombre';
 
     $stmt = $pdo->prepare($sql);
@@ -359,9 +359,9 @@ function fetch_pending_requests($pdo, $userId)
 {
     $stmt = $pdo->prepare(
         'SELECT a.*, u.nombre, u.apellidos, u.ciudad
-         FROM amistad a
-         INNER JOIN usuario u ON u.id_usuario = a.usuario_origen
-         WHERE a.usuario_destino = ? AND a.estado = ?
+         FROM amistad a, usuario u
+         WHERE u.id_usuario = a.usuario_origen
+           AND a.usuario_destino = ? AND a.estado = ?
          ORDER BY a.fecha_solicitud DESC'
     );
     $stmt->execute([$userId, 'pendiente']);
@@ -373,13 +373,13 @@ function fetch_accepted_friends($pdo, $userId)
 {
     $stmt = $pdo->prepare(
         'SELECT u.id_usuario, u.nombre, u.apellidos, u.ciudad
-         FROM amistad a
-         INNER JOIN usuario u
-            ON u.id_usuario = CASE
-                WHEN a.usuario_origen = ? THEN a.usuario_destino
-                ELSE a.usuario_origen
-            END
-         WHERE (a.usuario_origen = ? OR a.usuario_destino = ?) AND a.estado = ?
+         FROM amistad a, usuario u
+         WHERE u.id_usuario = CASE
+                   WHEN a.usuario_origen = ? THEN a.usuario_destino
+                   ELSE a.usuario_origen
+               END
+           AND (a.usuario_origen = ? OR a.usuario_destino = ?)
+           AND a.estado = ?
          ORDER BY u.nombre'
     );
     $stmt->execute([$userId, $userId, $userId, 'aceptada']);
@@ -425,13 +425,13 @@ function fetch_public_user_profile($pdo, $profileUserId)
 {
     $stmt = $pdo->prepare(
         'SELECT u.id_usuario, u.nombre, u.apellidos, u.ciudad, r.nombre AS rol,
-                GROUP_CONCAT(DISTINCT i.nombre ORDER BY i.nombre SEPARATOR ", ") AS intereses
-         FROM usuario u
-         INNER JOIN rol r ON r.id_rol = u.id_rol
-         LEFT JOIN preferencia p ON p.id_usuario = u.id_usuario
-         LEFT JOIN interes i ON i.id_interes = p.id_interes
-         WHERE u.id_usuario = ?
-         GROUP BY u.id_usuario, u.nombre, u.apellidos, u.ciudad, r.nombre'
+                (SELECT GROUP_CONCAT(i.nombre ORDER BY i.nombre SEPARATOR ", ")
+                 FROM preferencia p, interes i
+                 WHERE p.id_interes = i.id_interes
+                   AND p.id_usuario = u.id_usuario) AS intereses
+         FROM usuario u, rol r
+         WHERE r.id_rol = u.id_rol
+           AND u.id_usuario = ?'
     );
     $stmt->execute([$profileUserId]);
     $perfil = $stmt->fetch();
