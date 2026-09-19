@@ -8,12 +8,6 @@ participación de colaboradores (locales o negocios).
 Está hecha con PHP sin frameworks siguiendo el patrón Modelo-Vista-Controlador,
 y funciona tanto en local con XAMPP como en el despliegue online con Docker.
 
-## Versión online
-
-Disponible en **<https://friends4you.samuelciocan.com>** (Docker con PHP 8.3 +
-Apache, MySQL 8 y Cloudflare Tunnel). Detalles en
-[docs/guia_instalacion.md](docs/guia_instalacion.md).
-
 ## Roles
 
 - **Usuario** (persona): gestiona su perfil e intereses, amistades y asistencia a eventos.
